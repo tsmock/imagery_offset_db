@@ -14,7 +14,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
@@ -40,10 +39,10 @@ import org.openstreetmap.josm.gui.JosmUserIdentityManager;
 import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.gui.layer.ImageryLayer;
 import org.openstreetmap.josm.gui.layer.MapViewPaintable;
+import org.openstreetmap.josm.tools.HttpClient;
 import org.openstreetmap.josm.tools.ImageProvider;
 import org.openstreetmap.josm.tools.LanguageInfo;
 import org.openstreetmap.josm.tools.OpenBrowser;
-import org.openstreetmap.josm.tools.Utils;
 
 /**
  * The dialog which presents a choice between imagery align options.
@@ -335,9 +334,8 @@ public class OffsetDialog extends JDialog implements ActionListener, MapView.Zoo
             String page = "Imagery_Offset_Database";
             try {
                 // this logic was snatched from {@link org.openstreetmap.josm.gui.dialogs.properties.PropertiesDialog.HelpAction}
-                HttpURLConnection conn = Utils.openHttpConnection(new URL(base + lang + page));
-                conn.setConnectTimeout(Main.pref.getInteger("socket.timeout.connect", 10) * 1000);
-                if( conn.getResponseCode() != 200 ) {
+                HttpClient.Response conn = HttpClient.create(new URL(base + lang + page), "HEAD").connect();
+                if (conn.getResponseCode() != 200) {
                     conn.disconnect();
                     lang = "";
                 }
